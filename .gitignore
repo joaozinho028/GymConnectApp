@@ -1,0 +1,18 @@
+# Ignorar dependências do front
+/front/node_modules/
+
+# Ignorar build ou artefatos temporários
+/front/.expo/
+/front/.expo-shared/
+/front/dist/
+/front/build/
+
+# Ignorar arquivos de logs
+/front/npm-debug.log*
+/front/yarn-debug.log*
+/front/yarn-error.log*
+/front/*.log
+
+# Ignorar arquivos de cache
+/front/.cache/
+.front/.vscode/
