@@ -341,7 +341,11 @@ export default function HomeScreen({ navigation }: any) {
         </View>
 
         {searchActive && (
-          <View style={styles.searchContainer}>
+          <ScrollView
+            style={styles.searchContainer}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
             {searchText.trim().length === 0 ? (
               // Mostrar buscas recentes quando não há texto
               <View>
@@ -407,56 +411,51 @@ export default function HomeScreen({ navigation }: any) {
                     </Text>
                   </View>
                 ) : (
-                  <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    style={styles.searchResultsScroll}
-                  >
-                    <View style={styles.searchResultsGrid}>
-                      {searchResults.map((item) => (
-                        <TouchableOpacity
-                          key={item.id}
-                          style={styles.searchResultCard}
-                          onPress={() => handleGymPress(item)}
-                        >
-                          <Image
-                            source={{ uri: item.photo }}
-                            style={styles.searchResultImage}
-                          />
-                          <View style={styles.searchResultContent}>
-                            <Text
-                              style={styles.searchResultTitle}
-                              numberOfLines={1}
-                            >
-                              {item.title}
-                            </Text>
-                            <Text
-                              style={styles.searchResultDescription}
-                              numberOfLines={2}
-                            >
-                              {item.description}
-                            </Text>
-                            <View style={styles.searchResultFooter}>
-                              <View style={styles.gridRating}>
-                                {renderStars(item.rating)}
-                              </View>
-                              <Text style={styles.searchResultPrice}>
-                                A partir de R${" "}
-                                {Math.min(
-                                  ...item.plans.map((p: any) =>
-                                    parseFloat(p.price)
-                                  )
-                                )}
-                              </Text>
+                  <View style={styles.searchResultsGrid}>
+                    {searchResults.map((item) => (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={styles.searchResultCard}
+                        onPress={() => handleGymPress(item)}
+                      >
+                        <Image
+                          source={{ uri: item.photo }}
+                          style={styles.searchResultImage}
+                        />
+                        <View style={styles.searchResultContent}>
+                          <Text
+                            style={styles.searchResultTitle}
+                            numberOfLines={1}
+                          >
+                            {item.title}
+                          </Text>
+                          <Text
+                            style={styles.searchResultDescription}
+                            numberOfLines={2}
+                          >
+                            {item.description}
+                          </Text>
+                          <View style={styles.searchResultFooter}>
+                            <View style={styles.gridRating}>
+                              {renderStars(item.rating)}
                             </View>
+                            <Text style={styles.searchResultPrice}>
+                              A partir de R${" "}
+                              {Math.min(
+                                ...item.plans.map((p: any) =>
+                                  parseFloat(p.price)
+                                )
+                              )}
+                            </Text>
                           </View>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  </ScrollView>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
                 )}
               </View>
             )}
-          </View>
+          </ScrollView>
         )}
 
         {!searchActive && (
@@ -556,9 +555,9 @@ const styles = StyleSheet.create({
   addressText: { fontWeight: "600", fontSize: 18, color: "#FFFFFF" },
 
   searchContainer: {
+    flex: 1,
     paddingHorizontal: 16,
     marginTop: 12,
-    flex: 1,
   },
   searchSection: {
     flexDirection: "row",
@@ -622,11 +621,8 @@ const styles = StyleSheet.create({
     color: "#999",
     marginBottom: 4,
   },
-  searchResultsScroll: {
-    flex: 1,
-  },
   searchResultsGrid: {
-    gap: 12,
+    paddingBottom: 20,
   },
   searchResultCard: {
     flexDirection: "row",
