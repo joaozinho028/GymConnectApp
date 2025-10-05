@@ -41,10 +41,11 @@ function MainTabs() {
           return (
             <Ionicons
               name={iconName}
-              size={typeof size === "number" ? size : 26}
+              size={typeof size === "number" ? size : 24}
               color={color}
               style={{
-                marginTop: 4,
+                marginTop: 2,
+                marginBottom: 2,
                 ...(focused && {
                   shadowColor: "#1DB954",
                   shadowOffset: { width: 0, height: 0 },
@@ -61,17 +62,20 @@ function MainTabs() {
           backgroundColor: "#1a1a1a",
           borderTopWidth: 1,
           borderTopColor: "#333",
-          paddingTop: 8,
-          paddingBottom: 8,
-          height: 65,
+          paddingTop: 12,
+          paddingBottom: 20,
+          height: 90,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "600",
-          marginTop: 4,
+          marginTop: 6,
+          marginBottom: 4,
         },
         tabBarItemStyle: {
-          paddingVertical: 4,
+          paddingVertical: 8,
+          justifyContent: "center",
+          alignItems: "center",
         },
       })}
     >

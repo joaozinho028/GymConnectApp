@@ -2,11 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import {
   FlatList,
   Image,
+  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const favoriteStores = [
   {
@@ -48,6 +50,8 @@ const favoriteStores = [
 ];
 
 export default function FavoritesScreen() {
+  const insets = useSafeAreaInsets();
+
   const renderStore = ({ item }: any) => (
     <View style={styles.storeItem}>
       <Image source={{ uri: item.logo }} style={styles.logo} />
@@ -68,25 +72,23 @@ export default function FavoritesScreen() {
   );
 
   return (
-    <>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor="#0a0a0a" />
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.subtitle}>
-            aqui você encontra academias, studios ou profissionais que você
-            favoritou
-          </Text>
-        </View>
-
-        <FlatList
-          data={favoriteStores}
-          keyExtractor={(item) => item.id}
-          renderItem={renderStore}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8 }}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-        />
+      <View style={styles.header}>
+        <Text style={styles.subtitle}>
+          Aqui você encontra academias, studios ou profissionais que você
+          favoritou
+        </Text>
       </View>
-    </>
+
+      <FlatList
+        data={favoriteStores}
+        keyExtractor={(item) => item.id}
+        renderItem={renderStore}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8 }}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+      />
+    </SafeAreaView>
   );
 }
 

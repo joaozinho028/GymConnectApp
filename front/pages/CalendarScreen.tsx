@@ -372,98 +372,161 @@ export default function CalendarScreen() {
 
         <Modal visible={modalVisible} animationType="slide" transparent>
           <View style={styles.modalBackdrop}>
-            <View style={styles.modalCard}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>
-                  {editing ? "Editar agendamento" : "Novo agendamento"}
-                </Text>
-                <TouchableOpacity onPress={closeModal}>
-                  <Ionicons name="close" size={22} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.label}>Título</Text>
-              <TextInput
-                value={title}
-                onChangeText={setTitle}
-                placeholder="Ex.: Treino de Peito e Tríceps"
-                placeholderTextColor="#888"
-                style={styles.input}
-              />
-              <Text style={styles.label}>Início</Text>
-              <TouchableOpacity
-                onPress={() => setShowStartPicker(true)}
-                style={styles.inputLike}
-              >
-                <Ionicons name="time-outline" size={18} color="#FFFFFF" />
-                <Text style={{ marginLeft: 8, color: "#FFFFFF" }}>
-                  {dayjs(start).format("DD/MM/YYYY HH:mm")}
-                </Text>
-              </TouchableOpacity>{" "}
-              <Text style={styles.label}>Término</Text>
-              <TouchableOpacity
-                onPress={() => setShowEndPicker(true)}
-                style={styles.inputLike}
-              >
-                <Ionicons name="time-outline" size={18} color="#FFFFFF" />
-                <Text style={{ marginLeft: 8, color: "#FFFFFF" }}>
-                  {dayjs(end).format("DD/MM/YYYY HH:mm")}
-                </Text>
-              </TouchableOpacity>{" "}
-              <Text style={styles.label}>Observações</Text>
-              <TextInput
-                value={notes}
-                onChangeText={setNotes}
-                placeholder="Opcional"
-                placeholderTextColor="#888"
-                style={[styles.input, { height: 80 }]}
-                multiline
-              />
-              <View style={styles.modalActions}>
-                {editing ? (
-                  <TouchableOpacity
-                    style={[styles.btn, { backgroundColor: "#e53935" }]}
-                    onPress={() => deleteEvent(editing)}
-                  >
-                    <Ionicons name="trash-outline" size={18} color="#FFFFFF" />
-                    <Text style={styles.btnText}>Excluir</Text>
+            <SafeAreaView style={styles.modalSafeArea}>
+              <View style={styles.modalCard}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>
+                    {editing ? "Editar agendamento" : "Novo agendamento"}
+                  </Text>
+                  <TouchableOpacity onPress={closeModal}>
+                    <Ionicons name="close" size={22} color="#FFFFFF" />
                   </TouchableOpacity>
-                ) : null}
-
-                <View style={{ flex: 1 }} />
-
+                </View>
+                <Text style={styles.label}>Título</Text>
+                <TextInput
+                  value={title}
+                  onChangeText={setTitle}
+                  placeholder="Ex.: Treino de Peito e Tríceps"
+                  placeholderTextColor="#888"
+                  style={styles.input}
+                />
+                <Text style={styles.label}>Início</Text>
                 <TouchableOpacity
-                  style={[styles.btn, styles.btnPrimary]}
-                  onPress={upsertEvent}
+                  onPress={() => setShowStartPicker(true)}
+                  style={styles.inputLike}
                 >
-                  <Text style={styles.btnText}>Salvar</Text>
+                  <Ionicons name="time-outline" size={18} color="#FFFFFF" />
+                  <Text style={{ marginLeft: 8, color: "#FFFFFF" }}>
+                    {dayjs(start).format("DD/MM/YYYY HH:mm")}
+                  </Text>
+                </TouchableOpacity>
+                <Text style={styles.label}>Término</Text>
+                <TouchableOpacity
+                  onPress={() => setShowEndPicker(true)}
+                  style={styles.inputLike}
+                >
+                  <Ionicons name="time-outline" size={18} color="#FFFFFF" />
+                  <Text style={{ marginLeft: 8, color: "#FFFFFF" }}>
+                    {dayjs(end).format("DD/MM/YYYY HH:mm")}
+                  </Text>
+                </TouchableOpacity>
+                <Text style={styles.label}>Observações</Text>
+                <TextInput
+                  value={notes}
+                  onChangeText={setNotes}
+                  placeholder="Opcional"
+                  placeholderTextColor="#888"
+                  style={[styles.input, { height: 80 }]}
+                  multiline
+                />
+                <View style={styles.modalActions}>
+                  {editing ? (
+                    <TouchableOpacity
+                      style={[styles.btn, { backgroundColor: "#e53935" }]}
+                      onPress={() => deleteEvent(editing)}
+                    >
+                      <Ionicons
+                        name="trash-outline"
+                        size={18}
+                        color="#FFFFFF"
+                      />
+                      <Text style={styles.btnText}>Excluir</Text>
+                    </TouchableOpacity>
+                  ) : null}
+
+                  <View style={{ flex: 1 }} />
+
+                  <TouchableOpacity
+                    style={[styles.btn, styles.btnPrimary]}
+                    onPress={upsertEvent}
+                  >
+                    <Text style={styles.btnText}>Salvar</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </SafeAreaView>
+          </View>
+        </Modal>
+
+        {/* Modal para DateTimePicker - Início */}
+        <Modal
+          visible={showStartPicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowStartPicker(false)}
+        >
+          <View style={styles.pickerModalOverlay}>
+            <View style={styles.pickerModalContent}>
+              <View style={styles.pickerHeader}>
+                <Text style={styles.pickerTitle}>
+                  Selecionar Data e Hora de Início
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setShowStartPicker(false)}
+                  style={styles.pickerCloseButton}
+                >
+                  <Text style={styles.pickerCloseText}>✕</Text>
                 </TouchableOpacity>
               </View>
+              <DateTimePicker
+                value={start}
+                mode="datetime"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={(_, date) => {
+                  if (date) setStart(date);
+                }}
+                textColor="#FFFFFF"
+                style={styles.dateTimePicker}
+              />
+              <TouchableOpacity
+                style={[styles.btn, styles.btnPrimary, { marginTop: 20 }]}
+                onPress={() => setShowStartPicker(false)}
+              >
+                <Text style={styles.btnText}>Confirmar</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
 
-        {showStartPicker && (
-          <DateTimePicker
-            value={start}
-            mode="datetime"
-            display={Platform.OS === "ios" ? "inline" : "default"}
-            onChange={(_, date) => {
-              setShowStartPicker(false);
-              if (date) setStart(date);
-            }}
-          />
-        )}
-        {showEndPicker && (
-          <DateTimePicker
-            value={end}
-            mode="datetime"
-            display={Platform.OS === "ios" ? "inline" : "default"}
-            onChange={(_, date) => {
-              setShowEndPicker(false);
-              if (date) setEnd(date);
-            }}
-          />
-        )}
+        {/* Modal para DateTimePicker - Término */}
+        <Modal
+          visible={showEndPicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowEndPicker(false)}
+        >
+          <View style={styles.pickerModalOverlay}>
+            <View style={styles.pickerModalContent}>
+              <View style={styles.pickerHeader}>
+                <Text style={styles.pickerTitle}>
+                  Selecionar Data e Hora de Término
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setShowEndPicker(false)}
+                  style={styles.pickerCloseButton}
+                >
+                  <Text style={styles.pickerCloseText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+              <DateTimePicker
+                value={end}
+                mode="datetime"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={(_, date) => {
+                  if (date) setEnd(date);
+                }}
+                textColor="#FFFFFF"
+                style={styles.dateTimePicker}
+              />
+              <TouchableOpacity
+                style={[styles.btn, styles.btnPrimary, { marginTop: 20 }]}
+                onPress={() => setShowEndPicker(false)}
+              >
+                <Text style={styles.btnText}>Confirmar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </>
   );
@@ -551,8 +614,75 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   durationText: { fontSize: 11, color: "#888", textAlign: "right" },
-  modalBackdrop: { flex: 1, backgroundColor: "transparent" },
-  modalCard: { flex: 1, padding: 16, backgroundColor: "#1a1a1a" },
+
+  // Estilos para os modais de DateTimePicker
+  pickerModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pickerModalContent: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    width: "90%",
+    maxWidth: 350,
+  },
+  pickerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#333",
+    marginBottom: 15,
+  },
+  pickerTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
+    flex: 1,
+  },
+  pickerCloseButton: {
+    padding: 5,
+    borderRadius: 15,
+    backgroundColor: "#333",
+    width: 30,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pickerCloseText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  dateTimePicker: {
+    height: 200,
+    marginVertical: 10,
+  },
+
+  // Estilos existentes do modal principal
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    justifyContent: "flex-end",
+  },
+  modalSafeArea: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  modalCard: {
+    backgroundColor: "#1a1a1a",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 16,
+    height: "60%",
+    minHeight: "60%",
+    paddingBottom: 32,
+  },
   modalHeader: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
   modalTitle: { fontSize: 18, fontWeight: "700", flex: 1, color: "#FFFFFF" },
   label: { fontWeight: "600", marginTop: 8, marginBottom: 6, color: "#FFFFFF" },

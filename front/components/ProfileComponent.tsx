@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 // import PixIcon from "app/assets/icons/PixIcon";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Image,
   Linking,
@@ -101,7 +101,11 @@ export default function ProfileComponent({ route, navigation }: any) {
       // Caso queria deixar a parte de pix futuramente, poderia abrir outro modal aqui
       // Mas foi pedido para comentar essa parte
     } else {
-      setModalCardFormVisible(true);
+      setModalPaymentVisible(false); // Fecha o modal de pagamento primeiro
+      // Pequeno delay para transição suave
+      setTimeout(() => {
+        setModalCardFormVisible(true); // Então abre o formulário
+      }, 300);
     }
   }
   function handleCloseCardFormModal() {
@@ -111,6 +115,10 @@ export default function ProfileComponent({ route, navigation }: any) {
     setCardName("");
     setCardExpiry("");
     setCardCVV("");
+    // Volta para o modal de pagamento
+    setTimeout(() => {
+      setModalPaymentVisible(true);
+    }, 300);
   }
   function handleConfirmPayment() {
     // Aqui você pode tratar o pagamento, por enquanto só fecha modal
@@ -214,45 +222,50 @@ export default function ProfileComponent({ route, navigation }: any) {
       <Modal
         visible={modalPlanVisible}
         animationType="slide"
-        transparent={false}
+        transparent={true}
+        onRequestClose={handleClosePlanModal}
       >
-        <View style={styles.fullScreenModal}>
-          <ModalHeader
-            title="Escolha um plano"
-            onClose={handleClosePlanModal}
-          />
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalContainer}>
+            <ModalHeader
+              title="Escolha um plano"
+              onClose={handleClosePlanModal}
+            />
 
-          <ScrollView
-            contentContainerStyle={{
-              paddingHorizontal: 16,
-              paddingTop: 20,
-              paddingBottom: 24,
-            }}
-          >
-            {plans.length === 0 && (
-              <Text style={{ textAlign: "center", marginTop: 20 }}>
-                Nenhum plano disponível.
+            <ScrollView
+              contentContainerStyle={{
+                paddingHorizontal: 16,
+                paddingTop: 20,
+                paddingBottom: 24,
+              }}
+            >
+              {plans.length === 0 && (
+                <Text style={{ textAlign: "center", marginTop: 20 }}>
+                  Nenhum plano disponível.
+                </Text>
+              )}
+
+              {plans.map((plan: any) => (
+                <TouchableOpacity
+                  key={plan.id}
+                  style={styles.planCard}
+                  onPress={() => handleSelectPlan(plan)}
+                >
+                  <Text style={styles.planName}>{plan.name}</Text>
+                  <Text style={styles.planPrice}>R$ {plan.price} / mês</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <TouchableOpacity
+              style={[styles.btn, styles.btnGhost, { margin: 16 }]}
+              onPress={handleClosePlanModal}
+            >
+              <Text style={[styles.btnText, { color: "#FFFFFF" }]}>
+                Cancelar
               </Text>
-            )}
-
-            {plans.map((plan: any) => (
-              <TouchableOpacity
-                key={plan.id}
-                style={styles.planCard}
-                onPress={() => handleSelectPlan(plan)}
-              >
-                <Text style={styles.planName}>{plan.name}</Text>
-                <Text style={styles.planPrice}>R$ {plan.price} / mês</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          <TouchableOpacity
-            style={[styles.btn, styles.btnGhost, { margin: 16 }]}
-            onPress={handleClosePlanModal}
-          >
-            <Text style={[styles.btnText, { color: "#FFFFFF" }]}>Cancelar</Text>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
 
@@ -260,16 +273,18 @@ export default function ProfileComponent({ route, navigation }: any) {
       <Modal
         visible={modalPaymentVisible}
         animationType="slide"
-        transparent={false}
+        transparent={true}
+        onRequestClose={handleClosePaymentModal}
       >
-        <View style={styles.fullScreenModal}>
-          <ModalHeader
-            title="Forma de pagamento"
-            onClose={handleClosePaymentModal}
-          />
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalContainer}>
+            <ModalHeader
+              title="Forma de pagamento"
+              onClose={handleClosePaymentModal}
+            />
 
-          <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
-            {/* <TouchableOpacity
+            <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
+              {/* <TouchableOpacity
               style={styles.paymentOption}
               onPress={() => handleSelectPaymentMethod("pix")}
               disabled={true} // Pix desabilitado conforme seu pedido
@@ -280,29 +295,32 @@ export default function ProfileComponent({ route, navigation }: any) {
               </Text>
             </TouchableOpacity> */}
 
-            <TouchableOpacity
-              style={styles.paymentOption}
-              onPress={() => handleSelectPaymentMethod("debito")}
-            >
-              <Ionicons name="card-outline" size={24} color="#FFFFFF" />
-              <Text style={styles.paymentText}>Cartão de débito</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.paymentOption}
+                onPress={() => handleSelectPaymentMethod("debito")}
+              >
+                <Ionicons name="card-outline" size={24} color="#FFFFFF" />
+                <Text style={styles.paymentText}>Cartão de débito</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.paymentOption}
+                onPress={() => handleSelectPaymentMethod("credito")}
+              >
+                <Ionicons name="card-outline" size={24} color="#FFFFFF" />
+                <Text style={styles.paymentText}>Cartão de crédito</Text>
+              </TouchableOpacity>
+            </View>
 
             <TouchableOpacity
-              style={styles.paymentOption}
-              onPress={() => handleSelectPaymentMethod("credito")}
+              style={[styles.btn, styles.btnGhost, { margin: 16 }]}
+              onPress={handleClosePaymentModal}
             >
-              <Ionicons name="card-outline" size={24} color="#FFFFFF" />
-              <Text style={styles.paymentText}>Cartão de crédito</Text>
+              <Text style={[styles.btnText, { color: "#FFFFFF" }]}>
+                Cancelar
+              </Text>
             </TouchableOpacity>
           </View>
-
-          <TouchableOpacity
-            style={[styles.btn, styles.btnGhost, { margin: 16 }]}
-            onPress={handleClosePaymentModal}
-          >
-            <Text style={[styles.btnText, { color: "#FFFFFF" }]}>Cancelar</Text>
-          </TouchableOpacity>
         </View>
       </Modal>
 
@@ -310,75 +328,81 @@ export default function ProfileComponent({ route, navigation }: any) {
       <Modal
         visible={modalCardFormVisible}
         animationType="slide"
-        transparent={false}
+        transparent={true}
+        onRequestClose={handleCloseCardFormModal}
       >
-        <View style={styles.fullScreenModal}>
-          <ModalHeader
-            title={`Dados do cartão (${selectedPaymentMethod})`}
-            onClose={handleCloseCardFormModal}
-          />
-
-          <ScrollView
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
-          >
-            <Text style={styles.label}>Número do cartão</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="number-pad"
-              placeholder="0000 0000 0000 0000"
-              placeholderTextColor="#666"
-              value={cardNumber}
-              onChangeText={setCardNumber}
-              maxLength={19}
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalContainer}>
+            <ModalHeader
+              title={`Dados do cartão (${selectedPaymentMethod})`}
+              onClose={handleCloseCardFormModal}
             />
 
-            <Text style={styles.label}>Nome no cartão</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Nome completo"
-              placeholderTextColor="#666"
-              value={cardName}
-              onChangeText={setCardName}
-            />
-
-            <Text style={styles.label}>Validade (MM/AA)</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="MM/AA"
-              placeholderTextColor="#666"
-              value={cardExpiry}
-              onChangeText={setCardExpiry}
-              maxLength={5}
-            />
-
-            <Text style={styles.label}>CVV</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="number-pad"
-              placeholder="000"
-              placeholderTextColor="#666"
-              value={cardCVV}
-              onChangeText={setCardCVV}
-              maxLength={3}
-              secureTextEntry
-            />
-
-            <TouchableOpacity
-              style={[styles.btn, styles.btnPrimary, { marginTop: 24 }]}
-              onPress={handleConfirmPayment}
+            <ScrollView
+              contentContainerStyle={{
+                paddingHorizontal: 16,
+                paddingBottom: 24,
+              }}
             >
-              <Text style={styles.btnText}>Confirmar pagamento</Text>
-            </TouchableOpacity>
+              <Text style={styles.label}>Número do cartão</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="number-pad"
+                placeholder="0000 0000 0000 0000"
+                placeholderTextColor="#666"
+                value={cardNumber}
+                onChangeText={setCardNumber}
+                maxLength={19}
+              />
 
-            <TouchableOpacity
-              style={[styles.btn, styles.btnGhost, { marginTop: 12 }]}
-              onPress={handleCloseCardFormModal}
-            >
-              <Text style={[styles.btnText, { color: "#FFFFFF" }]}>
-                Cancelar
-              </Text>
-            </TouchableOpacity>
-          </ScrollView>
+              <Text style={styles.label}>Nome no cartão</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Nome completo"
+                placeholderTextColor="#666"
+                value={cardName}
+                onChangeText={setCardName}
+              />
+
+              <Text style={styles.label}>Validade (MM/AA)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="MM/AA"
+                placeholderTextColor="#666"
+                value={cardExpiry}
+                onChangeText={setCardExpiry}
+                maxLength={5}
+              />
+
+              <Text style={styles.label}>CVV</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="number-pad"
+                placeholder="000"
+                placeholderTextColor="#666"
+                value={cardCVV}
+                onChangeText={setCardCVV}
+                maxLength={3}
+                secureTextEntry
+              />
+
+              <TouchableOpacity
+                style={[styles.btn, styles.btnPrimary, { marginTop: 24 }]}
+                onPress={handleConfirmPayment}
+              >
+                <Text style={styles.btnText}>Confirmar pagamento</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.btn, styles.btnGhost, { marginTop: 12 }]}
+                onPress={handleCloseCardFormModal}
+              >
+                <Text style={[styles.btnText, { color: "#FFFFFF" }]}>
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
         </View>
       </Modal>
     </ScrollView>
@@ -471,9 +495,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  fullScreenModal: {
+  modalBackdrop: {
     flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    justifyContent: "flex-end",
+  },
+  modalContainer: {
     backgroundColor: "#0a0a0a",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    height: "50%",
+    paddingBottom: 34, // Safe area para iPhone
   },
   modalHeader: {
     height: 56,
@@ -484,7 +516,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#333",
     backgroundColor: "#1a1a1a",
-    zIndex: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   modalHeaderClose: {
     width: 24,

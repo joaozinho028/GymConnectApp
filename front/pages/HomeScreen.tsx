@@ -129,9 +129,9 @@ export default function HomeScreen({ navigation }: any) {
         "Estrutura completa",
       ],
       plans: [
-        { id: 1, name: "Academia + Piscina", price: "129.90" },
-        { id: 2, name: "Completo", price: "179.90" },
-        { id: 3, name: "Premium + Personal", price: "299.90" },
+        { id: 1, name: "Basic", price: "129.90" },
+        { id: 2, name: "Standard", price: "179.90" },
+        { id: 3, name: "Premium", price: "299.90" },
       ],
       gallery: [
         "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=400&q=80",
