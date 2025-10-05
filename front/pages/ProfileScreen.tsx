@@ -35,9 +35,9 @@ const userStats = [
     color: "#1DB954",
   },
   {
-    label: "Academias",
+    label: "Treinos",
     value: "12",
-    icon: "business-outline",
+    icon: "barbell-outline",
     color: "#3498db",
   },
   {

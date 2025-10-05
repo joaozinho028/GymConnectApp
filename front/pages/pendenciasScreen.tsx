@@ -258,7 +258,7 @@ export default function PendenciasScreen() {
                 filtroAtivo === "aVencer" && styles.filtroTextActive,
               ]}
             >
-              A Vencer
+              Futuras
             </Text>
           </TouchableOpacity>
         </View>
