@@ -4,7 +4,6 @@
 # Ignorar build ou artefatos temporários
 /front/.expo/
 /front/.expo-shared/
-/front/dist/
 /front/build/
 
 # Ignorar arquivos de logs
