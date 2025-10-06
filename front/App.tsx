@@ -21,12 +21,13 @@
 
 import { StatusBar } from "expo-status-bar";
 import StackNavigator from "./contexts/StackNavigator";
+import { AuthProvider } from "./contexts/AuthContext";
 
 export default function App() {
   return (
-    <>
+    <AuthProvider>
       <StatusBar style="dark" backgroundColor="#000 " />
       <StackNavigator />
-    </>
+    </AuthProvider>
   );
 }

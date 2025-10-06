@@ -3,6 +3,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Animated,
   Dimensions,
   Image,
@@ -18,12 +19,14 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RootStackParamList } from "../types/RootStackParamList";
+import { useAuth } from "../contexts/AuthContext";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const SignupScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { register } = useAuth();
 
   // Estados para os campos e validação
   const [name, setName] = useState("");
@@ -153,17 +156,40 @@ const SignupScreen = () => {
 
     setIsLoading(true);
 
-    // Navegar para verificação de telefone
-    setTimeout(() => {
-      setIsLoading(false);
-      navigation.navigate("PhoneVerificationScreen", {
-        userData: {
-          name,
-          email,
-          password,
-        },
+    try {
+      const result = await register({
+        nome: name,
+        email: email,
+        senha: password,
       });
-    }, 1500);
+
+      if (result.success) {
+        Alert.alert(
+          "Sucesso!",
+          result.message || "Conta criada com sucesso! Você pode fazer login agora.",
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.navigate("Login"),
+            },
+          ]
+        );
+      } else {
+        Alert.alert(
+          "Erro no Cadastro",
+          result.message || "Erro ao criar conta. Tente novamente.",
+          [{ text: "OK" }]
+        );
+      }
+    } catch (error) {
+      Alert.alert(
+        "Erro",
+        "Ocorreu um erro inesperado. Tente novamente.",
+        [{ text: "OK" }]
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

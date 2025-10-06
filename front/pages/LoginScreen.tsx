@@ -19,12 +19,14 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RootStackParamList } from "../types/RootStackParamList";
+import { useAuth } from "../contexts/AuthContext";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const LoginScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { login, isLoading: authLoading } = useAuth();
 
   // Estados para os campos e validação
   const [email, setEmail] = useState("");
@@ -108,21 +110,29 @@ const LoginScreen = () => {
 
     setIsLoading(true);
 
-    // Simular loading e verificar credenciais
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const result = await login(email, password);
 
-      // Verificar credenciais específicas
-      if (email === "admin@gmail.com" && password === "123") {
+      if (result.success) {
+        // Login bem-sucedido, navegar para tela principal
         navigation.replace("MainTabs");
       } else {
+        // Mostrar erro
         Alert.alert(
           "Erro de Login",
-          "Email ou senha incorretos.\n\nPara teste, use:\nEmail: admin@gmail.com\nSenha: 123",
+          result.message || "Email ou senha incorretos.",
           [{ text: "OK" }]
         );
       }
-    }, 1500);
+    } catch (error) {
+      Alert.alert(
+        "Erro",
+        "Ocorreu um erro inesperado. Tente novamente.",
+        [{ text: "OK" }]
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleForgotPassword = () => {
