@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import {
@@ -120,6 +121,12 @@ export default function ProfileScreen() {
     </View>
   );
 
+  // Função para logout
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("token");
+    navigation.replace("Login");
+  };
+
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor="#0a0a0a" />
@@ -188,10 +195,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           {/* Botão de sair */}
-          <TouchableOpacity
-            onPress={() => console.log("Usuário saiu")}
-            style={styles.logoutButton}
-          >
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
             <Ionicons name="log-out-outline" size={20} color="#fff" />
             <Text style={styles.logoutText}>Sair da Conta</Text>
           </TouchableOpacity>

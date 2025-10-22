@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useEffect, useRef, useState } from "react";
@@ -107,22 +108,46 @@ const LoginScreen = () => {
     }
 
     setIsLoading(true);
-
-    // Simular loading e verificar credenciais
-    setTimeout(() => {
+    try {
+      const res = await fetch(
+        `${
+          process.env.EXPO_PUBLIC_API_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, senha: password }),
+        }
+      );
+      const data = await res.json();
       setIsLoading(false);
+      if (res.ok && data.token) {
+        // Salvar token JWT
+        await AsyncStorage.setItem("token", data.token);
 
-      // Verificar credenciais específicas
-      if (email === "admin@gmail.com" && password === "123") {
+        // Exemplo: decodificar token para acessar dados do usuário
+        try {
+          // Exemplo: acessar id e email
+          // console.log('Usuário logado:', decoded.id, decoded.email);
+        } catch (e) {
+          // Se o token não puder ser decodificado
+        }
+
         navigation.replace("MainTabs");
       } else {
         Alert.alert(
           "Erro de Login",
-          "Email ou senha incorretos.\n\nPara teste, use:\nEmail: admin@gmail.com\nSenha: 123",
+          data.message || "Email ou senha incorretos.",
           [{ text: "OK" }]
         );
       }
-    }, 1500);
+    } catch (err) {
+      setIsLoading(false);
+      Alert.alert(
+        "Erro de Login",
+        "Não foi possível conectar ao servidor. Tente novamente.",
+        [{ text: "OK" }]
+      );
+    }
   };
 
   const handleForgotPassword = () => {

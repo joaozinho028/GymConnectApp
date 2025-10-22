@@ -1,6 +1,6 @@
 # Ignorar dependências do front
 /front/node_modules/
-
+/back/node_modules/
 # Ignorar build ou artefatos temporários
 /front/.expo/
 /front/.expo-shared/
