@@ -10,6 +10,9 @@ app.use(express.json());
 const authRoutes = require("./routes/auth");
 app.use("/auth", authRoutes);
 
+const academiaRoutes = require("./routes/academia");
+app.use("/academias", academiaRoutes);
+
 app.get("/", (req, res) => {
   res.send("API está rodando.");
 });

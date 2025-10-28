@@ -17,15 +17,14 @@ import {
   View,
 } from "react-native";
 import { RootStackParamList } from "../types/RootStackParamList";
+import { useAuth } from "../contexts/AuthContext";
+import * as ImagePicker from "expo-image-picker";
+import { Alert } from "react-native";
 
 const { width: screenWidth } = Dimensions.get("window");
 const isSmallScreen = screenWidth < 350;
 const isMediumScreen = screenWidth >= 350 && screenWidth < 400;
 
-const profileName = "João Vítor Marcelino";
-const profilePhoto = "https://i.pravatar.cc/150?img=12";
-const profileEmail = "joao@mail.com";
-const memberSince = "Membro desde 2024";
 
 // Estatísticas do usuário
 const userStats = [
@@ -85,8 +84,17 @@ const appSettings = [
 ];
 
 export default function ProfileScreen() {
+  const { usuario, enviarFotoUsuario, excluirFotoUsuario } = useAuth();
+  const profilePhoto = usuario?.foto_usuario || "https://i.pravatar.cc/150?img=12";
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  // Dados reais do usuário
+  const profileName = usuario?.nome_usuario || "";
+  const profileEmail = usuario?.email_usuario || "";
+  // Se quiser mostrar a data de criação, adicione 'created_at' ao backend e ao tipo Usuario
+  // Por enquanto, mostra texto padrão
+  const memberSince = "Membro desde";
 
   const renderSettingItem = ({ item }: any) => (
     <TouchableOpacity
@@ -127,6 +135,46 @@ export default function ProfileScreen() {
     navigation.replace("Login");
   };
 
+  const handlePickPhoto = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+      base64: true,
+    });
+    if (!result.canceled && result.assets && result.assets[0].base64) {
+      const url = await enviarFotoUsuario(result.assets[0].base64);
+      if (url) {
+        Alert.alert("Sucesso", "Foto atualizada!");
+      } else {
+        Alert.alert("Erro", "Não foi possível atualizar a foto.");
+      }
+    }
+  };
+
+  const handleDeletePhoto = async () => {
+    Alert.alert(
+      "Excluir foto",
+      "Tem certeza que deseja excluir sua foto de perfil?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            const sucesso = await excluirFotoUsuario();
+            if (sucesso) {
+              Alert.alert("Sucesso", "Foto excluída!");
+            } else {
+              Alert.alert("Erro", "Não foi possível excluir a foto.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor="#0a0a0a" />
@@ -139,10 +187,31 @@ export default function ProfileScreen() {
           >
             <View style={styles.overlay} />
             <View style={styles.profileContainer}>
-              <Image
-                source={{ uri: profilePhoto }}
-                style={styles.profileImage}
-              />
+              <View style={{ alignItems: "center" }}>
+                <Image
+                  source={{ uri: profilePhoto }}
+                  style={styles.profileImage}
+                />
+                <View style={{ flexDirection: "row", marginTop: 8 }}>
+                  <TouchableOpacity
+                    style={{ marginRight: 12 }}
+                    onPress={handlePickPhoto}
+                  >
+                    <Ionicons name="camera-outline" size={22} color="#1DB954" />
+                    <Text style={{ color: "#1DB954", fontSize: 12 }}>
+                      Alterar
+                    </Text>
+                  </TouchableOpacity>
+                  {usuario?.foto_usuario && (
+                    <TouchableOpacity onPress={handleDeletePhoto}>
+                      <Ionicons name="trash-outline" size={22} color="#e74c3c" />
+                      <Text style={{ color: "#e74c3c", fontSize: 12 }}>
+                        Excluir
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
               <Text style={styles.profileName}>{profileName}</Text>
               <Text style={styles.profileEmail}>{profileEmail}</Text>
               <Text style={styles.memberSince}>{memberSince}</Text>

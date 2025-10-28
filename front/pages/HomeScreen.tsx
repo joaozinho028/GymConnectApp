@@ -23,6 +23,23 @@ const banners = [
 ];
 
 export default function HomeScreen({ navigation }: any) {
+  // Função para buscar todas as academias da tabela
+  const buscarTodasAcademias = async () => {
+    try {
+      const API_URL = `${process.env.EXPO_PUBLIC_API_URL}/academias`;
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      const academiasArray = Array.isArray(data)
+        ? data
+        : Array.isArray(data.academias)
+        ? data.academias
+        : [];
+      setSearchResults(academiasArray);
+      setFilteredItems(academiasArray);
+    } catch (err) {
+      setErrorAcademias("Erro ao buscar todas as academias");
+    }
+  };
   const [searchText, setSearchText] = useState("");
   const [searchActive, setSearchActive] = useState(false);
   const [recentSearches, setRecentSearches] = useState([
@@ -33,154 +50,11 @@ export default function HomeScreen({ navigation }: any) {
   ]);
 
   const [address, setAddress] = useState("Localizando...");
-
-  const [items] = useState([
-    {
-      id: "1",
-      photo:
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=400&q=80",
-      title: "Academia PowerFit",
-      description: "Treinos personalizados e equipamentos modernos.",
-      rating: 4,
-      profilePhoto:
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=200&q=80",
-      bannerPhoto:
-        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80",
-      workingHours:
-        "Segunda a Sexta: 06h às 23h | Sábado: 07h às 20h | Domingo: 08h às 18h",
-      phone: "(11) 98765-4321",
-      whatsapp: "5511987654321",
-      email: "contato@powerfit.com.br",
-      address: "Rua das Flores, 123 - Centro, São Paulo - SP",
-      comments: [
-        "Ótima academia!",
-        "Equipamentos modernos",
-        "Professores qualificados",
-      ],
-      plans: [
-        { id: 1, name: "Plano Básico", price: "89.90" },
-        { id: 2, name: "Plano Premium", price: "149.90" },
-        { id: 3, name: "Plano VIP", price: "199.90" },
-      ],
-      gallery: [
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=400&q=80",
-      ],
-    },
-    {
-      id: "2",
-      photo:
-        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=400&q=80",
-      title: "Fitness Center",
-      description: "Ambiente aconchegante e profissionais qualificados.",
-      rating: 5,
-      profilePhoto:
-        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80",
-      bannerPhoto:
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80",
-      workingHours: "Segunda a Domingo: 06h às 22h",
-      phone: "(11) 91234-5678",
-      whatsapp: "5511912345678",
-      email: "info@fitnesscenter.com.br",
-      address: "Av. Paulista, 456 - Bela Vista, São Paulo - SP",
-      comments: [
-        "Ambiente excelente!",
-        "Staff muito atencioso",
-        "Localização perfeita",
-      ],
-      plans: [
-        { id: 1, name: "Mensal", price: "99.90" },
-        { id: 2, name: "Trimestral", price: "259.90" },
-        { id: 3, name: "Anual", price: "899.90" },
-      ],
-      gallery: [
-        "https://images.unsplash.com/photo-1571019614332-651312c4a2e0?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1566241440091-ec10de8db2e1?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=400&q=80",
-      ],
-    },
-    {
-      id: "3",
-      photo:
-        "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=400&q=80",
-      title: "Strong Gym",
-      description: "Academia completa com piscina e aulas de grupo.",
-      rating: 4,
-      profilePhoto:
-        "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=200&q=80",
-      bannerPhoto:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=80",
-      workingHours:
-        "Segunda a Sexta: 05h30 às 23h30 | Fins de semana: 07h às 21h",
-      phone: "(11) 95555-1234",
-      whatsapp: "5511955551234",
-      email: "contato@stronggym.com.br",
-      address: "Rua da Academia, 789 - Vila Madalena, São Paulo - SP",
-      comments: [
-        "Piscina incrível!",
-        "Aulas de grupo muito boas",
-        "Estrutura completa",
-      ],
-      plans: [
-        { id: 1, name: "Basic", price: "129.90" },
-        { id: 2, name: "Standard", price: "179.90" },
-        { id: 3, name: "Premium", price: "299.90" },
-      ],
-      gallery: [
-        "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1549060279-7e168fcee0c2?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=400&q=80",
-      ],
-    },
-    {
-      id: "4",
-      photo:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&q=80",
-      title: "Body Shape",
-      description: "Foco em resultados com personal trainers especializados.",
-      rating: 5,
-      profilePhoto:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=200&q=80",
-      bannerPhoto:
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80",
-      workingHours: "Segunda a Sexta: 06h às 22h | Sábado: 08h às 18h",
-      phone: "(11) 94444-9876",
-      whatsapp: "5511944449876",
-      email: "bodyshape@contato.com.br",
-      address: "Alameda dos Exercícios, 321 - Jardins, São Paulo - SP",
-      comments: [
-        "Personal trainers excelentes!",
-        "Resultados garantidos",
-        "Foco total na qualidade",
-      ],
-      plans: [
-        { id: 1, name: "Personal 2x/semana", price: "249.90" },
-        { id: 2, name: "Personal 3x/semana", price: "349.90" },
-        { id: 3, name: "Personal VIP", price: "499.90" },
-      ],
-      gallery: [
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1566241440091-ec10de8db2e1?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=400&q=80",
-      ],
-    },
-  ]);
-
-  const [filteredItems, setFilteredItems] = useState(items);
-  const [searchResults, setSearchResults] = useState(items);
+  const [academias, setAcademias] = useState<any[]>([]);
+  const [loadingAcademias, setLoadingAcademias] = useState(true);
+  const [errorAcademias, setErrorAcademias] = useState<string | null>(null);
+  const [filteredItems, setFilteredItems] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -193,11 +67,14 @@ export default function HomeScreen({ navigation }: any) {
             [{ text: "Entendi" }]
           );
           setAddress("Permissão negada");
+          setLoadingAcademias(false);
           return;
         }
 
-        const location = await Location.getCurrentPositionAsync({});
-        const geocode = await Location.reverseGeocodeAsync(location.coords);
+  const location = await Location.getCurrentPositionAsync({});
+  console.log('Latitude do usuário:', location.coords.latitude);
+  console.log('Longitude do usuário:', location.coords.longitude);
+  const geocode = await Location.reverseGeocodeAsync(location.coords);
 
         if (geocode.length > 0) {
           const place = geocode[0];
@@ -206,17 +83,31 @@ export default function HomeScreen({ navigation }: any) {
           const bairro = place.district || "";
           const cidade = place.city || "";
 
-          const enderecoFormatado = `${rua}${numero ? ", " + numero : ""} ${
-            bairro ? " - " + bairro : ""
-          }${cidade ? " - " + cidade : ""}`;
-
+          const enderecoFormatado = `${rua}${numero ? ", " + numero : ""} ${bairro ? " - " + bairro : ""}${cidade ? " - " + cidade : ""}`;
           setAddress(enderecoFormatado);
         } else {
           setAddress("Endereço não encontrado");
         }
+
+        // Buscar academias próximas
+        try {
+          const API_URL = `${process.env.EXPO_PUBLIC_API_URL}/academias/proximas`;
+          const response = await fetch(
+            `${API_URL}?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}&raio=5`
+          );
+          const data = await response.json();
+          const academiasArray = Array.isArray(data) ? data : [];
+          setAcademias(academiasArray);
+          setFilteredItems(academiasArray);
+          setSearchResults(academiasArray);
+        } catch (err) {
+          setErrorAcademias("Erro ao buscar academias próximas");
+        }
+        setLoadingAcademias(false);
       } catch (error) {
         console.error("Erro ao obter localização:", error);
         setAddress("Erro ao localizar");
+        setLoadingAcademias(false);
       }
     })();
   }, []);
@@ -232,8 +123,8 @@ export default function HomeScreen({ navigation }: any) {
   const onCancelSearch = () => {
     setSearchText("");
     setSearchActive(false);
-    setSearchResults(items);
-    setFilteredItems(items);
+    setSearchResults(academias);
+    setFilteredItems(academias);
   };
 
   const onSubmitSearch = () => {
@@ -248,14 +139,11 @@ export default function HomeScreen({ navigation }: any) {
 
   const performSearch = (query: string) => {
     const lowercaseQuery = query.toLowerCase();
-    const results = items.filter(
+    const results = academias.filter(
       (item) =>
-        item.title.toLowerCase().includes(lowercaseQuery) ||
-        item.description.toLowerCase().includes(lowercaseQuery) ||
-        item.address.toLowerCase().includes(lowercaseQuery) ||
-        item.plans.some((plan) =>
-          plan.name.toLowerCase().includes(lowercaseQuery)
-        )
+        (item.nome?.toLowerCase().includes(lowercaseQuery) ||
+        item.endereco?.toLowerCase().includes(lowercaseQuery) ||
+        item.telefone?.toLowerCase().includes(lowercaseQuery))
     );
     setSearchResults(results);
     setFilteredItems(results);
@@ -266,8 +154,8 @@ export default function HomeScreen({ navigation }: any) {
     if (text.trim().length > 0) {
       performSearch(text.trim());
     } else {
-      setSearchResults(items);
-      setFilteredItems(items);
+      // Buscar todas as academias da tabela, independente da localização
+      buscarTodasAcademias();
     }
   };
 
@@ -277,21 +165,7 @@ export default function HomeScreen({ navigation }: any) {
   };
 
   const handleGymPress = (gym: any) => {
-    navigation.navigate("ProfileComponent", {
-      title: gym.title,
-      description: gym.description,
-      profilePhoto: gym.profilePhoto,
-      bannerPhoto: gym.bannerPhoto,
-      workingHours: gym.workingHours,
-      phone: gym.phone,
-      whatsapp: gym.whatsapp,
-      email: gym.email,
-      address: gym.address,
-      rating: gym.rating,
-      comments: gym.comments,
-      plans: gym.plans,
-      gallery: gym.gallery,
-    });
+    navigation.navigate("ProfileComponent", gym);
   };
 
   return (
@@ -301,7 +175,7 @@ export default function HomeScreen({ navigation }: any) {
         <View style={styles.header}>
           <TouchableOpacity style={{ flex: 1 }}>
             <Text style={styles.addressText} numberOfLines={1}>
-              Rua Paulo Schiochet
+              {address}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity style={{ paddingLeft: 16 }}>
@@ -412,7 +286,7 @@ export default function HomeScreen({ navigation }: any) {
                   </View>
                 ) : (
                   <View style={styles.searchResultsGrid}>
-                    {searchResults.map((item) => (
+                    {(searchResults || []).map((item) => (
                       <TouchableOpacity
                         key={item.id}
                         style={styles.searchResultCard}
@@ -441,11 +315,9 @@ export default function HomeScreen({ navigation }: any) {
                             </View>
                             <Text style={styles.searchResultPrice}>
                               A partir de R${" "}
-                              {Math.min(
-                                ...item.plans.map((p: any) =>
-                                  parseFloat(p.price)
-                                )
-                              )}
+                              {item.plans && item.plans.length > 0
+                                ? Math.min(...item.plans.map((p: any) => parseFloat(p.price)))
+                                : "N/A"}
                             </Text>
                           </View>
                         </View>
@@ -479,39 +351,42 @@ export default function HomeScreen({ navigation }: any) {
               </ScrollView>
             </View>
 
-            <ScrollView
-              contentContainerStyle={styles.listContainer}
-              showsVerticalScrollIndicator={false}
-            >
-              <View style={styles.gridContainer}>
-                {items.map((item) => (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={styles.gridCard}
-                    onPress={() => handleGymPress(item)}
-                  >
-                    <Image
-                      source={{ uri: item.photo }}
-                      style={styles.gridCardImage}
-                    />
-                    <View style={styles.gridCardContent}>
-                      <Text style={styles.gridCardTitle} numberOfLines={1}>
-                        {item.title}
-                      </Text>
-                      <Text
-                        style={styles.gridCardDescription}
-                        numberOfLines={2}
+            {loadingAcademias ? (
+              <Text style={{ color: '#fff', textAlign: 'center', marginTop: 40 }}>Carregando academias próximas...</Text>
+            ) : errorAcademias ? (
+              <Text style={{ color: 'red', textAlign: 'center', marginTop: 40 }}>{errorAcademias}</Text>
+            ) : (
+              <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>
+                <View style={styles.gridContainer}>
+                  {(!academias || academias.length === 0) ? (
+                    <Text style={{ color: '#fff', textAlign: 'center', marginTop: 40 }}>Nenhuma academia próxima encontrada.</Text>
+                  ) : (
+                    (academias || []).map((item) => (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={styles.gridCard}
+                        onPress={() => handleGymPress(item)}
                       >
-                        {item.description}
-                      </Text>
-                      <View style={styles.gridRating}>
-                        {renderStars(item.rating)}
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </ScrollView>
+                        {/* Se tiver foto, exibe, senão mostra um placeholder */}
+                        <View>
+                          {item.foto ? (
+                            <Image source={{ uri: item.foto }} style={styles.gridCardImage} />
+                          ) : (
+                            <View style={[styles.gridCardImage, { backgroundColor: '#222', justifyContent: 'center', alignItems: 'center' }]}> 
+                              <Ionicons name="image-outline" size={40} color="#888" />
+                            </View>
+                          )}
+                        </View>
+                        <View style={styles.gridCardContent}>
+                          <Text style={styles.gridCardTitle} numberOfLines={1}>{item.nome}</Text>
+                          <Text style={styles.gridCardDescription} numberOfLines={2}>{item.endereco}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))
+                  )}
+                </View>
+              </ScrollView>
+            )}
           </>
         )}
       </SafeAreaView>

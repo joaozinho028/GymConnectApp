@@ -1,5 +1,6 @@
 ﻿import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import {
   Alert,
   Dimensions,
@@ -19,18 +20,54 @@ const isSmallScreen = screenWidth < 350;
 const isMediumScreen = screenWidth >= 350 && screenWidth < 400;
 
 export default function AccountScreen() {
-  // Dados pessoais (estado inicial)
+  const { usuario, atualizarUsuario } = useAuth();
+
   const [personalData, setPersonalData] = useState({
-    nome: "João Vítor Marcelino",
-    email: "joao@mail.com",
-    telefone: "(47) 99999-9999",
-    cpf: "123.456.789-00",
-    endereco: "Rua das Flores, 123",
-    cep: "89200-000",
-    cidade: "Jaraguá do Sul",
-    estado: "SC",
-    pais: "Brasil",
+    nome: "",
+    email: "",
+    telefone: "",
+    cpf: "",
+    endereco: "",
+    cep: "",
+    cidade: "",
+    estado: "",
+    pais: "",
   });
+
+  useEffect(() => {
+    console.log("usuario do contexto:", usuario);
+    if (usuario) {
+      let endereco = {
+        endereco: "",
+        CEP: "",
+        cidade: "",
+        estado: "",
+        pais: "",
+      };
+      if (usuario.endereco_usuario) {
+        if (typeof usuario.endereco_usuario === "string") {
+          try {
+            endereco = JSON.parse(usuario.endereco_usuario);
+          } catch {
+            endereco.endereco = usuario.endereco_usuario;
+          }
+        } else {
+          endereco = usuario.endereco_usuario as any;
+        }
+      }
+      setPersonalData({
+        nome: usuario.nome_usuario || "",
+        email: usuario.email_usuario || "",
+        telefone: usuario.telefone_usuario || "",
+        cpf: usuario.cpf_usuario || "",
+        endereco: endereco.endereco || "",
+        cep: endereco.CEP || "",
+        cidade: endereco.cidade || "",
+        estado: endereco.estado || "",
+        pais: endereco.pais || "",
+      });
+    }
+  }, [usuario]);
 
   // Modal estados
   const [modalPersonalVisible, setModalPersonalVisible] = useState(false);
@@ -55,9 +92,30 @@ export default function AccountScreen() {
   const [tempCardData, setTempCardData] = useState({ ...cardData });
 
   // Funções para salvar e cancelar edição dados pessoais
-  function savePersonalData() {
-    setPersonalData(tempPersonalData);
-    setModalPersonalVisible(false);
+  async function savePersonalData() {
+    // Prepare address as JSON string
+    const enderecoObj = {
+      endereco: tempPersonalData.endereco,
+      CEP: tempPersonalData.cep,
+      cidade: tempPersonalData.cidade,
+      estado: tempPersonalData.estado,
+      pais: tempPersonalData.pais,
+    };
+    const dadosAtualizar = {
+      nome_usuario: tempPersonalData.nome,
+      email_usuario: tempPersonalData.email,
+      telefone_usuario: tempPersonalData.telefone,
+      cpf_usuario: tempPersonalData.cpf,
+      endereco_usuario: JSON.stringify(enderecoObj),
+    };
+    const sucesso = await atualizarUsuario(dadosAtualizar);
+    if (sucesso) {
+      setPersonalData(tempPersonalData);
+      setModalPersonalVisible(false);
+      Alert.alert("Sucesso", "Dados atualizados com sucesso!");
+    } else {
+      Alert.alert("Erro", "Não foi possível atualizar os dados.");
+    }
   }
 
   function cancelPersonalEdit() {

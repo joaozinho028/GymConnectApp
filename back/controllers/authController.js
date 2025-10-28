@@ -1,3 +1,31 @@
+// PUT /auth/editarusuario
+const editarUsuario = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ message: "Token não fornecido." });
+    }
+    const token = authHeader.replace("Bearer ", "");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Dados enviados para atualização
+    const dadosAtualizados = req.body;
+
+    // Atualizar usuário no banco
+    const { error } = await supabase
+      .from("usuarios")
+      .update(dadosAtualizados)
+      .eq("id_usuario", decoded.id)
+      .eq("status_usuario", true);
+
+    if (error) throw error;
+    return res.json({ message: "Dados atualizados com sucesso." });
+  } catch (err) {
+    return res
+      .status(401)
+      .json({ message: "Erro ao atualizar usuário.", error: err.message });
+  }
+};
 // Endpoint temporário para debug: listar todos os usuários ativos
 const debugUsuarios = async (req, res) => {
   try {
@@ -64,4 +92,104 @@ const login = async (req, res) => {
       .json({ message: "Erro ao autenticar.", error: err.message });
   }
 };
-module.exports = { login, debugUsuarios };
+// GET /auth/me
+const buscarUsuario = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ message: "Token não fornecido." });
+    }
+    const token = authHeader.replace("Bearer ", "");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Buscar usuário pelo id
+    const { data: usuarios, error } = await supabase
+      .from("usuarios")
+      .select("*")
+      .eq("id_usuario", decoded.id)
+      .eq("status_usuario", true)
+      .limit(1);
+
+    if (error) throw error;
+    if (!usuarios || usuarios.length === 0) {
+      return res.status(404).json({ message: "Usuário não encontrado." });
+    }
+    const usuario = usuarios[0];
+    const { senha_usuario, ...usuarioSemSenha } = usuario;
+    return res.json({ usuario: usuarioSemSenha });
+  } catch (err) {
+    return res
+      .status(401)
+      .json({ message: "Token inválido ou expirado.", error: err.message });
+  }
+};
+
+// POST /auth/uploadfoto
+const uploadFotoUsuario = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ message: "Token não fornecido." });
+    }
+    const token = authHeader.replace("Bearer ", "");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Espera receber o arquivo como base64 ou buffer
+    const { fotoBase64 } = req.body;
+    if (!fotoBase64) {
+      return res.status(400).json({ message: "Foto não enviada." });
+    }
+    // Nome do arquivo: usuario_{id}.jpg
+    const fileName = `usuario_${decoded.id}.jpg`;
+    // Upload para o bucket 'foto-usuario'
+    const { data, error } = await supabase.storage
+      .from("foto-usuario")
+      .upload(fileName, Buffer.from(fotoBase64, "base64"), {
+        contentType: "image/jpeg",
+        upsert: true,
+      });
+    if (error) throw error;
+    // Gerar URL pública
+    const { publicURL } = supabase.storage
+      .from("foto-usuario")
+      .getPublicUrl(fileName).data;
+    // Atualizar campo foto_usuario na tabela
+    await supabase
+      .from("usuarios")
+      .update({ foto_usuario: publicURL })
+      .eq("id_usuario", decoded.id)
+      .eq("status_usuario", true);
+    return res.json({ message: "Foto enviada com sucesso.", url: publicURL });
+  } catch (err) {
+    return res.status(500).json({ message: "Erro ao enviar foto.", error: err.message });
+  }
+};
+
+// DELETE /auth/excluirfoto
+const excluirFotoUsuario = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ message: "Token não fornecido." });
+    }
+    const token = authHeader.replace("Bearer ", "");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const fileName = `usuario_${decoded.id}.jpg`;
+    // Excluir do bucket
+    const { error } = await supabase.storage
+      .from("foto-usuario")
+      .remove([fileName]);
+    if (error) throw error;
+    // Remover campo foto_usuario na tabela
+    await supabase
+      .from("usuarios")
+      .update({ foto_usuario: null })
+      .eq("id_usuario", decoded.id)
+      .eq("status_usuario", true);
+    return res.json({ message: "Foto excluída com sucesso." });
+  } catch (err) {
+    return res.status(500).json({ message: "Erro ao excluir foto.", error: err.message });
+  }
+};
+
+module.exports = { login, debugUsuarios, buscarUsuario, editarUsuario, uploadFotoUsuario, excluirFotoUsuario };
